@@ -1,4 +1,8 @@
 /**
+ * @constant {Number} CAPICOM_MEMORY_STORE Хранилище сертификатов в памяти компьютера.
+ */
+export const CAPICOM_MEMORY_STORE = 0;
+/**
  * @constant {Number} CAPICOM_LOCAL_MACHINE_STORE Локальное хранилище компьютера.
  */
 export const CAPICOM_LOCAL_MACHINE_STORE = 1;
@@ -142,3 +146,11 @@ export const CAPICOM_EKU_SMARTCARD_LOGON = 5;
  * @constant {Number} CAPICOM_AUTHENTICATED_ATTRIBUTE_SIGNING_TIME Время подписи.
  */
 export const CAPICOM_AUTHENTICATED_ATTRIBUTE_SIGNING_TIME = 0;
+/**
+ * @constant {Number} CAPICOM_AUTHENTICATED_ATTRIBUTE_DOCUMENT_NAME Название документа.
+ */
+export const CAPICOM_AUTHENTICATED_ATTRIBUTE_DOCUMENT_NAME = 1;
+/**
+ * @constant {Number} CAPICOM_AUTHENTICATED_ATTRIBUTE_DOCUMENT_DESCRIPTION Описание документа.
+ */
+export const CAPICOM_AUTHENTICATED_ATTRIBUTE_DOCUMENT_DESCRIPTION = 2;
