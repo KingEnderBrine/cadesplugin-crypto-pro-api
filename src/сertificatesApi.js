@@ -55,27 +55,34 @@ async function about() {
  * @throws {Error}
  * @description получает массив активных сертификатов
  */
-async function getCertsList() {
+async function getCertsList(throwErrors = true) {
   try {
     const oStore = await cadescomMethods.oStore();
     await oStore.Open(CAPICOM_CURRENT_USER_STORE, CAPICOM_MY_STORE, CAPICOM_STORE_OPEN_MAXIMUM_ALLOWED);
 
-    const certificates = await oStore.Certificates;
+    let certificates = await oStore.Certificates;
 
     if (!certificates) {
-      throw new Error('Нет доступных сертификатов');
+      if (throwErrors) {
+        throw new Error('Нет доступных сертификатов');
+      } else {
+        return [];
+      }
     }
-
-    const findCertificate = await certificates.Find(CAPICOM_CERTIFICATE_FIND_TIME_VALID);
-    const findCertsWithPrivateKey = await findCertificate.Find(
+    let count = 0;
+    certificates = await certificates.Find(CAPICOM_CERTIFICATE_FIND_TIME_VALID);
+    certificates = await certificates.Find(
       CAPICOM_CERTIFICATE_FIND_EXTENDED_PROPERTY,
       CAPICOM_PROPID_KEY_PROV_INFO
     );
 
-    const count = await findCertsWithPrivateKey.Count;
-
-    if (!count) {
-      throw new Error('Нет сертификатов с приватным ключём');
+    count = await certificates.Count;
+    if (count <= 0) {
+      if (throwErrors) {
+        throw new Error('Нет сертификатов с приватным ключём');
+      } else {
+        return [];
+      }
     }
 
     const countArray = Array(count).fill(null);
@@ -92,7 +99,7 @@ async function getCertsList() {
        */
       countArray.map(async (_, index) => {
         try {
-          const certApi = await findCertsWithPrivateKey.Item(index + 1);
+          const certApi = await certificates.Item(index + 1);
 
           const сertificateAdjuster = new CertificateAdjuster({
             certApi,
@@ -109,14 +116,14 @@ async function getCertsList() {
 
           return сertificateAdjuster;
         } catch (error) {
-          throw new Error(`При переборе сертификатов произошла ошибка: ${error.message}`);
+          console.error(`При переборе сертификатов произошла ошибка: ${error.message}`);
         }
       })
     );
 
     oStore.Close();
 
-    return createCertList;
+    return createCertList.filter(certificate => !!certificate);
   } catch (error) {
     throw new Error(error.message);
   }
@@ -128,9 +135,9 @@ async function getCertsList() {
  * @throws {Error}
  * @description получает все валидные сертификаты
  */
-async function getValidCertificates() {
+async function getValidCertificates(throwErrors = true) {
   try {
-    const certList = await getCertsList();
+    const certList = await getCertsList(throwErrors);
     const validCertificates = [];
 
     for (let index = 0; index < certList.length; index++) {
@@ -144,7 +151,11 @@ async function getValidCertificates() {
 
     return validCertificates;
   } catch (error) {
-    throw new Error(error.message);
+    if (throwErrors) {
+      throw new Error(error.message);
+    } else {
+      return [];
+    }
   }
 }
 
