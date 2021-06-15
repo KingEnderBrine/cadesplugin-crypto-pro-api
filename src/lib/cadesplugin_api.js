@@ -22,6 +22,8 @@
           plugin_resolve = resolve;
           plugin_reject = reject;
       });
+      //Firefox в dev режиме ругается на необработанное исключение
+      cadesplugin.catch(reject => console.error(reject));
   } else
   {
       cadesplugin = {};
